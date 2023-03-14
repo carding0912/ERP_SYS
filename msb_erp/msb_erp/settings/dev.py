@@ -17,7 +17,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -30,7 +30,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,14 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',   # DRF框架
-    "drf_yasg2",   # 自动生成接口文档
-    'corsheaders',   # 解决浏览器的跨域问题
-    'erp_system'  #系统管理模块: 包括 用户管理,角色管理,功能菜单管理,权限管理,机构管理,日志模块
+    'rest_framework',  # DRF框架
+    'drf_yasg',  # 自动生成接口文档
+    'corsheaders',  # 解决浏览器的跨域问题
+    'erp_system'  # 系统管理模块: 包括 用户管理,角色管理,功能菜单管理,权限管理,机构管理,日志模块
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # 首先要解决的,所以要配在第一个(中间件是有加载和返回顺序的)
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,11 +58,10 @@ MIDDLEWARE = [
 
 # 设置CORS⽩白名单
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8080',    # 前端项目的IP和端口
+    'http://127.0.0.1:8080',  # 前端项目的IP和端口
     'http://localhost:8080',
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie   凡是出现在⽩白名单中的域名，都可以访问后。
-
 
 ROOT_URLCONF = 'msb_erp.urls'
 
@@ -86,7 +84,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'msb_erp.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -103,7 +100,7 @@ DATABASES = {
         'PASSWORD': 'root',
         'HOST': 'localhost',
         'PORT': '3306',
-        }
+    }
 }
 
 # Password validation
@@ -124,23 +121,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#配置Redis数据库 注
-# CACHES = {
-#     "default": {    # 默认
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://192.168.23.3:6379/0",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     },
-#     "verify_code": {   # 验证码
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://192.168.23.3:6379/2",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     },
-# }
+
+# 配置Redis数据库 注
+CACHES = {
+    "default": {    # 默认
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "verify_code": {   # 验证码
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+}
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -171,17 +169,17 @@ LOGGING = {
         'file': {  # 向文件中输出日志
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR,'logs/erp.log'),  # 日志文件的位置
+            'filename': os.path.join(BASE_DIR, 'logs/erp.log'),  # 日志文件的位置
             'maxBytes': 300 * 1024 * 1024,
             'backupCount': 10,
             'formatter': 'verbose'
         },
     },
-     'loggers': {  # 日志器
+    'loggers': {  # 日志器
         'erp': {  # 自己用的logger应用如下配置
-          'handlers': ['console', 'file'],  # 上线之后可以把'console'移除
-          'level': 'DEBUG',
-          'propagate': True,  # 是否向上一级logger实例传递日志信息
+            'handlers': ['console', 'file'],  # 上线之后可以把'console'移除
+            'level': 'DEBUG',
+            'propagate': True,  # 是否向上一级logger实例传递日志信息
         },
         'django': {  # 定义了一个名为django的日志器
             'handlers': ['console', 'file'],  # 可以同时向终端与文件中输出日志
@@ -201,23 +199,26 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         #  配置认证方式的选项【drf的认证是内部循环遍历每一个注册的认证类，一旦认证通过识别到用户身份，则不会继续循环】
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+
         # 'rest_framework.authentication.SessionAuthentication',  # 项目前后端分离不启用session和basic认证
         # 'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     # 配置全局认证方式:仅通过认证的用户
+    #     'rest_framework.permissions.IsAuthenticated',
+    # )
 }
-
 
 # JWT配置
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'msb_erp.utils.jwt_handler.jwt_response_handler',  # 此项在utils公共模块下要定义
 }
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -228,4 +229,10 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 添加自定义用户模型类（应用名.模型类名）
+AUTH_USER_MODEL = 'erp_system.UserModel'
+
+# 指定自定义认证类路径
+AUTHENTICATION_BACKENDS = ['erp_system.user_auth.UserLoginAuth']
 

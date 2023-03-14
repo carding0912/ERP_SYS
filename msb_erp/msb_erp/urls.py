@@ -15,25 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
-from drf_yasg2 import openapi
-from drf_yasg2.views import get_schema_view
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework.documentation import include_docs_urls
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="接口 API文档",
-        default_version='V1',
-        description="ERP系统项目接口文档",
+        title="ERP系统API接口",
+        default_version='马士兵课堂出品API接口',
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
-
 urlpatterns = [
+
     path('admin/', admin.site.urls),
-    re_path(r'^api/',include('erp_system.urls')),
-    re_path(r'^doc(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),  # 导出
-    path('doc/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # swagger接口
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),  # coreapi的接口文档
+    re_path(r'^api/', include('erp_system.urls')),
+    path('docs/', include_docs_urls(title='ERP接口文档')),
+    path('doc<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),  #导出.json格式
+    path('doc/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # 文档接口1
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),    # 文档接口2
 ]

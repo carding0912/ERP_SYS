@@ -1,10 +1,12 @@
 import logging
 
-from drf_yasg2 import openapi
-from drf_yasg2.utils import swagger_auto_schema
+from django.db.models import Q
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from erp_system.models import MenuModel
+from erp_system.models import MenuModel, PermissionsModel, UserModel
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from msb_erp.apps.erp_system.serializer.menu_serializer import MenuSerializer
 
@@ -29,7 +31,7 @@ class MenuView(viewsets.ModelViewSet):
     create:
     新增菜单,
 
-    参数: menu对象,其中delete_flag,cerate_time,update_time 不用传参,return:添加之后的对象
+    参数: menu对象,其中delete_flag,create_time,update_time 不用传参,return:添加之后的对象
 
     retrieve:
     查询单个菜单对象
@@ -52,8 +54,13 @@ class MenuView(viewsets.ModelViewSet):
 
     partial_update:
     局部修改菜单,修改任意指定的属性
+
+    get_menus_by_permission
+    当前登录用户,根据权限查询那些拥有get权限的功能菜单列表
+
     """
 
+    # permission_classes = [IsAuthenticated]
     queryset = MenuModel.objects.filter(delete_flag=0).all()
     serializer_class = MenuSerializer
 
@@ -107,3 +114,32 @@ class MenuView(viewsets.ModelViewSet):
         MenuModel.objects.filter(id__in=delete_ids).update(delete_flag=1)
         MenuModel.objects.filter(parent_id__in=delete_ids).update(delete_flag=1)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['get'], detail=False)
+    def get_menus_by_permission(self, request, *args, **kwargs):
+        #  当前登录用户,根据权限查询那些拥有get权限的功能菜单列表
+        #  第一步:查询当前登录用户,拥有的角色权限ID列表
+        permission_ids = request.user.roles.values_list('permissions', flat=True).distinct()
+        #  第二步:查询拥有get权限的功能菜单的ID列表,两个filter是并且的关系
+        #  注意:所有父菜单是都没有任何权限的,所以父菜单的权限也应该要出现
+        menu_ids = PermissionsModel.objects.filter(id__in=permission_ids).filter(
+            Q(method='GET') | Q(is_menu=True)).values_list(
+            'menu', flat=True)
+        #  第三步:根据id查询菜单列表
+        menu_list = MenuModel.objects.filter(id__in=menu_ids, delete_flag=0).all()
+        serializer = MenuSerializer(instance=menu_list, many=True)
+        # 封装成一个树型结构
+        tree_dict = {}
+        tree_data = []
+        for item in serializer.data:
+            tree_dict[item['id']] = item
+        print(tree_dict)
+        for i in tree_dict:
+            if tree_dict[i]['parent']:
+                pid = tree_dict[i]['parent']
+                parent = tree_dict[pid]
+                parent.setdefault('children', []).append(tree_dict[i])
+                pass
+            else:
+                tree_data.append(tree_dict[i])
+        return Response(tree_data)
