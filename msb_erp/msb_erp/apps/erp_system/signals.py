@@ -1,7 +1,7 @@
 import logging
 
 from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.dispatch import receiver, Signal
 
 from erp_system.models import MenuModel, PermissionsModel
 
@@ -11,7 +11,6 @@ methods = {'POST': '新增', 'GET': '查询', 'PUT': '修改', 'DELETE': '删除
 
 @receiver(post_save, sender=MenuModel)
 def create_menu_permission(sender, instance, created, **kwargs):
-    # 此处有BUG:父级菜单和子级菜单修改的时候会出现不会对权限进行新增或删除
     """
     创建信号监控函数,信号接收者收到之后自动触发.创建菜单资源对应的权限
     """
@@ -33,3 +32,20 @@ def create_menu_permission(sender, instance, created, **kwargs):
 
         else:
             return logger.warning('当前对象不是MenuModel类型,所以不需要创建对应的权限!')
+
+
+parent_change_signal = Signal()
+
+@receiver(parent_change_signal)
+def change_menu_permission(sender, instance, data, **kwargs):
+    old_permission = PermissionsModel.objects.filter(menu=instance)
+    if old_permission:
+        old_permission.delete()
+    if data.get('parent', None):
+        for method in methods.keys():
+            PermissionsModel.objects.create(name=methods.get(method),
+                                            desc=f'{instance.name}的{methods.get(method)}的权限',
+                                            is_menu=False, method=method, path=instance.url, menu=instance)
+    else:
+        PermissionsModel.objects.create(name=data.get('name') + '的权限', is_menu=True ,menu=instance)
+

@@ -1,6 +1,7 @@
 import logging
 
 from django.db.models import Q
+from django.dispatch import Signal
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
@@ -8,6 +9,8 @@ from rest_framework.decorators import action
 from erp_system.models import MenuModel, PermissionsModel, UserModel
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from erp_system.signals import parent_change_signal
 from msb_erp.apps.erp_system.serializer.menu_serializer import MenuSerializer
 
 logger = logging.getLogger('erp')
@@ -114,6 +117,15 @@ class MenuView(viewsets.ModelViewSet):
         MenuModel.objects.filter(id__in=delete_ids).update(delete_flag=1)
         MenuModel.objects.filter(parent_id__in=delete_ids).update(delete_flag=1)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = request.data
+        if bool(instance.parent) != bool(data.get('parent', None)):
+            print('跳转信号自动更改t_permissions表')
+            parent_change_signal.send(sender=self.__class__, instance=instance,
+                                      data=data)
+        return super().update(request, *args, **kwargs)
 
     @action(methods=['get'], detail=False)
     def get_menus_by_permission(self, request, *args, **kwargs):

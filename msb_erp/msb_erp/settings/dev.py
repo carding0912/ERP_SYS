@@ -121,17 +121,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # 配置Redis数据库 注
 CACHES = {
-    "default": {    # 默认
+    "default": {  # 默认
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
-    "verify_code": {   # 验证码
+    "verify_code": {  # 验证码
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/2",
         "OPTIONS": {
@@ -208,10 +207,20 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     # 配置全局认证方式:仅通过认证的用户
-    #     'rest_framework.permissions.IsAuthenticated',
-    # )
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 配置全局认证方式:仅通过认证的用户
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        '马士兵JWT验证': {
+            'in': 'header',
+            'name': 'Authorization',
+            'type': 'apiKey',
+        },
+    },
 }
 
 # JWT配置
@@ -235,4 +244,3 @@ AUTH_USER_MODEL = 'erp_system.UserModel'
 
 # 指定自定义认证类路径
 AUTHENTICATION_BACKENDS = ['erp_system.user_auth.UserLoginAuth']
-
