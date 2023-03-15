@@ -215,7 +215,7 @@ REST_FRAMEWORK = {
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        '马士兵JWT验证': {
+        'JWT验证': {
             'in': 'header',
             'name': 'Authorization',
             'type': 'apiKey',

@@ -23,7 +23,7 @@ from rest_framework.documentation import include_docs_urls
 schema_view = get_schema_view(
     openapi.Info(
         title="ERP系统API接口",
-        default_version='马士兵课堂出品API接口',
+        default_version='drf3.14版API接口',
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
