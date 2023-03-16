@@ -37,6 +37,7 @@ class UserModel(AbstractUser, BaseModel):
         db_table = 't_user'
         verbose_name = '系统用户表'
         verbose_name_plural = verbose_name
+        ordering = ['id']
 
     def __str__(self):
         return self.username + ':' + self.real_name

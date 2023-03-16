@@ -44,7 +44,6 @@ class UsersView(ListModelMixin, UpdateModelMixin, DestroyModelMixin, RetrieveMod
     用户信息的局部修改信息端口
 
     局部修改用户信息, 修改任意指定的用户信息
-
     multiple_delete:
     批量删除用户端口
 

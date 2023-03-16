@@ -33,6 +33,7 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     re_path(r'^api/', include('erp_system.urls')),
+    re_path(r'^api/', include('basic_info.urls')),
     path('docs/', include_docs_urls(title='ERP接口文档')),
     path('doc<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),  #导出.json格式
     path('doc/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # 文档接口1

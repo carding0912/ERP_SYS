@@ -3,10 +3,9 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from erp_system.models import RolesModel, PermissionsModel
+from erp_system.models import RolesModel, PermissionsModel, MenuModel
 from msb_erp.utils.base_views import MultipleDestroyMixin
-from erp_system.serializer.role_serializer import RolesPartialSerializer, RoleSetPermissionSerializer, \
-    BaseRolesSerializer
+from erp_system.serializer.role_serializer import RolesPartialSerializer,RoleSetPermissionSerializer,BaseRolesSerializer
 
 
 #  角色数据库中有一个固定的角色:admin,这个角色代表所有权限,它不能删除
@@ -64,9 +63,14 @@ class RolesView(viewsets.ModelViewSet, MultipleDestroyMixin):
         if ser.is_valid():  # 参数验证通过了
             # 查询当前的角色
             role = RolesModel.objects.get(id=ser.validated_data.get('role_id'))
-            # 查询 当前的权限
+            # 查询当前的权限
             permission = PermissionsModel.objects.get(id=ser.validated_data.get('permission_id'))
             if ser.validated_data.get('is_create'):
+                # 如果授予一个角色某个子菜单的权限,那么也要授予这个权限的父菜单的权限
+                parent_id = MenuModel.objects.filter(id=permission.menu.id).values_list('parent')
+                if parent_id:
+                    parent_permission = PermissionsModel.objects.get(menu_id=parent_id[0])
+                    role.permissions.add(parent_permission)    # 授予这个角色父菜单的权限
                 role.permissions.add(permission)  # 把当前的权限授予当前的角色
             else:
                 role.permissions.remove(permission)  # 取消权限

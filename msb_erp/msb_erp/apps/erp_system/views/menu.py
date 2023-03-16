@@ -1,13 +1,12 @@
 import logging
 
 from django.db.models import Q
-from django.dispatch import Signal
+from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from erp_system.models import MenuModel, PermissionsModel, UserModel
-from rest_framework.permissions import IsAuthenticated
+from erp_system.models import MenuModel, PermissionsModel
 from rest_framework.response import Response
 
 from erp_system.signals import parent_change_signal
@@ -28,7 +27,8 @@ logger = logging.getLogger('erp')
 8 修改功能菜单
 """
 
-
+list_id = openapi.Parameter(name='pid', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER)
+@method_decorator(name='list', decorator=swagger_auto_schema(manual_parameters=[list_id]))
 class MenuView(viewsets.ModelViewSet):
     """
     create:
@@ -62,8 +62,6 @@ class MenuView(viewsets.ModelViewSet):
     当前登录用户,根据权限查询那些拥有get权限的功能菜单列表
 
     """
-
-    # permission_classes = [IsAuthenticated]
     queryset = MenuModel.objects.filter(delete_flag=0).all()
     serializer_class = MenuSerializer
 
@@ -122,7 +120,6 @@ class MenuView(viewsets.ModelViewSet):
         instance = self.get_object()
         data = request.data
         if bool(instance.parent) != bool(data.get('parent', None)):
-            print('跳转信号自动更改t_permissions表')
             parent_change_signal.send(sender=self.__class__, instance=instance,
                                       data=data)
         return super().update(request, *args, **kwargs)

@@ -30,7 +30,8 @@ class UserRegisterSerializer(ModelSerializer):
             }
         }
 
-    def validate_phone(self, phone):
+    @staticmethod
+    def validate_phone(phone):
         """
         验证手机号码,自定义一个验证的函数(命名规则:validate_+字段名字)
         """
@@ -64,8 +65,8 @@ class UserReadOnlySerializer(ModelSerializer):
     """
     用于用户的序列化器
     """
-    roles = BaseRolesSerializer(many=True,read_only=True)
-    dept = DeptSerializer(many=False,read_only=True)
+    roles = BaseRolesSerializer(many=True, read_only=True)
+    dept = DeptSerializer(many=False, read_only=True)
 
     class Meta:
         model = UserModel
@@ -73,17 +74,16 @@ class UserReadOnlySerializer(ModelSerializer):
 
 
 class UserResetPasswordSerializer(ModelSerializer):
-
-    new_password = serializers.CharField(required=True,write_only=True)
-    confirm_password = serializers.CharField(required=True,write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    confirm_password = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = UserModel
-        fields = ('id','password','new_password','confirm_password')
+        fields = ('id', 'password', 'new_password', 'confirm_password')
         extra_kwargs = {
-            'password':{"write_only":True},
-            'new_password':{"write_only":True},
-            'confirm_password':{"write_only":True},
+            'password': {"write_only": True},
+            'new_password': {"write_only": True},
+            'confirm_password': {"write_only": True},
         }
 
     def validate(self, attrs):
@@ -110,5 +110,3 @@ class UserResetPasswordSerializer(ModelSerializer):
             self.instance.set_password(self.validated_data.get('new_password'))
             self.instance.save()
         return self.instance
-
-

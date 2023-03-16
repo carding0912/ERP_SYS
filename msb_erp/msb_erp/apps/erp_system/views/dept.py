@@ -1,4 +1,8 @@
 import logging
+
+from django.utils.decorators import method_decorator
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from erp_system.models import DeptModel
 from erp_system.serializer.dept_serializer import DeptSerializer
@@ -20,7 +24,8 @@ logger = logging.getLogger('erp')
 8 修改部门属性
 """
 
-
+query_param = openapi.Parameter(name='pid', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER)
+@method_decorator(name='list', decorator=swagger_auto_schema(manual_parameters=[query_param]))
 class DeptView(viewsets.ModelViewSet, MultipleDestroyMixin):
     """
    create:

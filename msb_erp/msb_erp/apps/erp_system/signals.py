@@ -47,5 +47,5 @@ def change_menu_permission(sender, instance, data, **kwargs):
                                             desc=f'{instance.name}的{methods.get(method)}的权限',
                                             is_menu=False, method=method, path=instance.url, menu=instance)
     else:
-        PermissionsModel.objects.create(name=data.get('name') + '的权限', is_menu=True ,menu=instance)
+        PermissionsModel.objects.create(name=str(instance.name) + '的权限', is_menu=True ,menu=instance)
 

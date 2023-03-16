@@ -55,11 +55,9 @@ class PermissionsView(viewsets.ModelViewSet, MultipleDestroyMixin):
     queryset = PermissionsModel.objects.all()
     serializer_class = PermissionsSerializer
 
-    query_param = openapi.Parameter(name='menu_id', in_=openapi.IN_QUERY,
-                                    description="/find_permissions_by_menu/?menu_id=查询值",
-                                    type=openapi.TYPE_INTEGER)
+    menu_id_set = openapi.Parameter(name='menu_id', in_=openapi.IN_QUERY,type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(method='get', manual_parameters=[query_param])
+    @swagger_auto_schema(method='get', manual_parameters=[menu_id_set])
     @action(methods=['get'], detail=False)
     def find_permissions_by_menu(self, request, *args, **kwargs):
         menu_id = request.query_params.get('menu_id')
@@ -67,9 +65,9 @@ class PermissionsView(viewsets.ModelViewSet, MultipleDestroyMixin):
         ser = PermissionsSerializer(instance=permission_list, many=True)
         return Response(ser.data)
 
-    query_param = openapi.Parameter(name='rid', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER)
+    rid_set = openapi.Parameter(name='rid', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(method='get', manual_parameters=[query_param])
+    @swagger_auto_schema(method='get', manual_parameters=[rid_set])
     @action(methods=['get'], detail=False)
     def find_permissions(self, request, *args, **kwargs):
         result = {}  # 返回值,字典

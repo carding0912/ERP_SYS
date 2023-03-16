@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',  # DRF框架
     'drf_yasg',  # 自动生成接口文档
     'corsheaders',  # 解决浏览器的跨域问题
-    'erp_system'  # 系统管理模块: 包括 用户管理,角色管理,功能菜单管理,权限管理,机构管理,日志模块
+    'erp_system',  # 系统管理模块: 包括 用户管理,角色管理,功能菜单管理,权限管理,机构管理,日志模块
+    'basic_info',  # 基本信息管理的模块
 ]
 
 MIDDLEWARE = [
@@ -165,6 +166,11 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'my_con': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+
         'file': {  # 向文件中输出日志
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -184,6 +190,11 @@ LOGGING = {
             'handlers': ['console', 'file'],  # 可以同时向终端与文件中输出日志
             'propagate': True,  # 是否继续传递日志信息
             'level': 'INFO',  # 日志器接收的最低日志级别
+        },
+        'django.db.backends':{
+            'handlers': ['my_con'],  # 可以同时向终端与文件中输出日志
+            'propagate': True,  # 是否继续传递日志信息
+            'level': 'DEBUG',  # 日志器接收的最低日志级别
         },
     }
 }
@@ -207,11 +218,17 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    'DEFAULT_PERMISSION_CLASSES': (
-        # 配置全局认证方式:仅通过认证的用户
-        'rest_framework.permissions.IsAuthenticated',
-    )
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     # 配置全局认证方式:仅通过认证的用户
+    #     'rest_framework.permissions.IsAuthenticated',
+    #     'msb_erp.utils.rbac_permissions.RbacPermission'
+    # )
 }
+
+BASE_API = 'api/'  # 项目BASE API, 如设置时必须以/结尾
+# 权限认证白名单
+WHITE_LIST = [f'/{BASE_API}user/login/', f'/{BASE_API}user/register/', f'/doc/.*', f'/redoc/.*']
+REGEX_URL = '^{url}$'  # 权限匹配时,严格正则url
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
