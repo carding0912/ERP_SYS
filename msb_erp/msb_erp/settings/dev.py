@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rrza3!4)j&l^_6(3p2eny)2-h+t8^k1nysk+%i&bt2!@jvz%9i'
+SECRET_KEY = "django-insecure-rrza3!4)j&l^_6(3p2eny)2-h+t8^k1nysk+%i&bt2!@jvz%9i"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',  # 解决浏览器的跨域问题
     'erp_system',  # 系统管理模块: 包括 用户管理,角色管理,功能菜单管理,权限管理,机构管理,日志模块
     'basic_info',  # 基本信息管理的模块
+
 ]
 
 MIDDLEWARE = [
@@ -182,7 +183,7 @@ LOGGING = {
     },
     'loggers': {  # 日志器
         'erp': {  # 自己用的logger应用如下配置
-            'handlers': ['console', 'file'],  # 上线之后可以把'console'移除
+            'handlers': ['console', 'file'],  # 上线之后可以把 console 移除
             'level': 'DEBUG',
             'propagate': True,  # 是否向上一级logger实例传递日志信息
         },
@@ -191,17 +192,17 @@ LOGGING = {
             'propagate': True,  # 是否继续传递日志信息
             'level': 'INFO',  # 日志器接收的最低日志级别
         },
-        'django.db.backends':{
-            'handlers': ['my_con'],  # 可以同时向终端与文件中输出日志
-            'propagate': True,  # 是否继续传递日志信息
-            'level': 'DEBUG',  # 日志器接收的最低日志级别
-        },
+        # 'django.db.backends':{
+        #     'handlers': ['my_con'],  # 可以同时向终端与文件中输出日志
+        #     'propagate': True,  # 是否继续传递日志信息
+        #     'level': 'DEBUG',  # 日志器接收的最低日志级别
+        # },
     }
 }
 
 LANGUAGE_CODE = 'zh-Hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -261,3 +262,11 @@ AUTH_USER_MODEL = 'erp_system.UserModel'
 
 # 指定自定义认证类路径
 AUTHENTICATION_BACKENDS = ['erp_system.user_auth.UserLoginAuth']
+
+# celery配置
+# CELERY_TIMEZONE = 'Asia/Shanghai'  # 时区配置
+CELERY_TASK_TRACK_STARTED = True  # 是否自动加载任务配置
+CELERY_TASK_TIME_LIMIT = 30 * 60   # 任务结果过期时间配置
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/3'  # Broker配置,使用redis作为消息中间件
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/4'   # 任务结果存储配置,使用redis存储
+CELERY_RESULT_SERIALIZER = 'json'  # 配置结果为序列化方案

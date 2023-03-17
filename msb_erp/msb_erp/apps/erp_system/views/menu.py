@@ -8,9 +8,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from erp_system.models import MenuModel, PermissionsModel
 from rest_framework.response import Response
-
-from erp_system.signals import parent_change_signal
 from msb_erp.apps.erp_system.serializer.menu_serializer import MenuSerializer
+from erp_system.tasks import create_menu_permission, change_menu_permission
 
 logger = logging.getLogger('erp')
 
@@ -28,6 +27,8 @@ logger = logging.getLogger('erp')
 """
 
 list_id = openapi.Parameter(name='pid', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER)
+
+
 @method_decorator(name='list', decorator=swagger_auto_schema(manual_parameters=[list_id]))
 class MenuView(viewsets.ModelViewSet):
     """
@@ -104,7 +105,7 @@ class MenuView(viewsets.ModelViewSet):
     @swagger_auto_schema(method='delete', request_body=del_ids,
                          operation_description='批量删除菜单 参数: 传参要求是个id列表[id1,id2,id3,...]')
     @action(methods=['delete'], detail=False)
-    def multiple_delete(self, request, *args, **kwargs):
+    def multiple_delete(self, request):
         delete_ids = request.data.get('ids')
         if not delete_ids:
             return Response(data={'detail': '参数错误,ids为必传参数'}, status=status.HTTP_400_BAD_REQUEST)
@@ -119,13 +120,32 @@ class MenuView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         data = request.data
-        if bool(instance.parent) != bool(data.get('parent', None)):
-            parent_change_signal.send(sender=self.__class__, instance=instance,
-                                      data=data)
-        return super().update(request, *args, **kwargs)
+        old_parent = instance.parent
+        new_parent = data.get('parent', None)
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        menu = serializer.save()
+        if menu and bool(old_parent) != bool(new_parent):
+            change_menu_permission.delay(menu_id=menu.id)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        menu = serializer.save()
+        if menu and menu.id:
+            create_menu_permission.delay(menu.id)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(methods=['get'], detail=False)
-    def get_menus_by_permission(self, request, *args, **kwargs):
+    def get_menus_by_permission(self, request):
         #  当前登录用户,根据权限查询那些拥有get权限的功能菜单列表
         #  第一步:查询当前登录用户,拥有的角色权限ID列表
         permission_ids = request.user.roles.values_list('permissions', flat=True).distinct()
