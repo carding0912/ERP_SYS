@@ -96,12 +96,10 @@ class PermissionsView(viewsets.ModelViewSet, MultipleDestroyMixin):
                 # 重新形成了只有子菜单的组成的字典,即去掉了所有tree_dict中的父菜单元素
 
             else:  # 如果i是父菜单
-                print(tree_dict[i])
                 tree_data.append(tree_dict[i])
                 # tree_dict[i]的格式是 menu_id:{id:?,name:?,menu_name:?,menu_id:?,'menu__parent_id':None}
         # print(tree_data)
         for parent in tree_data:
-            print(parent)
             if 'children' in parent:
                 for child in parent['children']:
                     # 得到child(二级)

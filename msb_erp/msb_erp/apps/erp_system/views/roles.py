@@ -15,37 +15,30 @@ class RolesView(viewsets.ModelViewSet, MultipleDestroyMixin):
     角色-新增
 
     角色新增,status:201(成功),return:新增角色信息
-
     destroy:
     角色--删除 单个角色
 
     角色删除,status:204(成功),return:None
-
     multiple_delete:
     角色--批量删除,多个角色
 
     角色批量删除,status:204(成功),return:None
-
     update:
     角色--修改,仅仅修改角的名字
 
     角色修改,status:200(成功),return:修改的角色信息
-
     partial_update:
     角色--局部修改(角色的批量授权),只能针对某一个角色一次性授权,之前的授权会被覆盖
 
     角色批量授权,status:200(成功),return:修改后的角色信息
-
-
     list:
     角色--获取列表
 
     角色列表信息,status:200(成功),return:角色信息列表
-
     set_permission_to_role:
     给单个角色,单一授权,一次只能授予该角色一个permission,也可以取消一个permission
-    status:200(成功),return:修改后的角色信息
 
+    status:200(成功),return:修改后的角色信息
     """
     queryset = RolesModel.objects.all()
 
@@ -67,7 +60,7 @@ class RolesView(viewsets.ModelViewSet, MultipleDestroyMixin):
             permission = PermissionsModel.objects.get(id=ser.validated_data.get('permission_id'))
             if ser.validated_data.get('is_create'):
                 # 如果授予一个角色某个子菜单的权限,那么也要授予这个权限的父菜单的权限
-                parent_id = MenuModel.objects.filter(id=permission.menu.id).values_list('parent')
+                parent_id = MenuModel.objects.filter(id=permission.menu.id).values_list('parent',flat=True)
                 if parent_id:
                     parent_permission = PermissionsModel.objects.get(menu_id=parent_id[0])
                     role.permissions.add(parent_permission)    # 授予这个角色父菜单的权限

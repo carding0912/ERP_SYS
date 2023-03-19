@@ -10,3 +10,13 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class BaseModel2(BaseModel):
+    """
+    抽象类,所有业务有关模型类的父类,定义了公用属性
+    """
+    delete_flag = models.BooleanField('启动和禁用标记', max_length=1, default=False)
+
+    class Meta:
+        abstract = True

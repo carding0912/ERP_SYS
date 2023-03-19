@@ -14,8 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from rest_framework import routers
-
-from basic_info.views import area
+from basic_info.views import area, supplier,customer,warehouse,settlementaccount
 
 urlpatterns = [
     # re_path(r'^user/reset_password/(?P<pk>\d+)/$',user.UserResetPasswordView.as_view()),    # 用户修改密码
@@ -25,4 +24,8 @@ router = routers.DefaultRouter()
 router.register(r'nation',area.NationsView)
 router.register(r'province',area.ProvincesView)
 router.register(r'city',area.CitiesView)
+router.register(r'supplier',supplier.SupplierView)
+router.register(r'customer',customer.CustomerView)
+router.register(r'warehouse',warehouse.WarehouseView)
+router.register(r'account',settlementaccount.SettlementAccountView)
 urlpatterns += router.urls

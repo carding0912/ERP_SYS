@@ -20,6 +20,8 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.documentation import include_docs_urls
 
+from msb_erp.utils import base_views
+
 schema_view = get_schema_view(
     openapi.Info(
         title="ERP系统API接口",
@@ -34,6 +36,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^api/', include('erp_system.urls')),
     re_path(r'^api/', include('basic_info.urls')),
+    re_path(r'^api/generate_code/$', base_views.GenerateCode.as_view()),  # 自动生成编号的路由
     path('docs/', include_docs_urls(title='ERP接口文档')),
     path('doc<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),  #导出.json格式
     path('doc/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # 文档接口1
