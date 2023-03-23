@@ -1,3 +1,7 @@
+"""
+celery的任务执行函数文件
+"""
+
 import logging
 from celery import shared_task
 from erp_system.models import PermissionsModel, MenuModel
@@ -35,3 +39,4 @@ def change_menu_permission(menu_id):
                                             is_menu=False, method=method, path=instance.url, menu=instance)
     else:
         PermissionsModel.objects.create(name=str(instance.name) + '的权限', is_menu=True ,menu=instance)
+

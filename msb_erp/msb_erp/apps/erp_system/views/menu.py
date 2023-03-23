@@ -59,9 +59,10 @@ class MenuView(viewsets.ModelViewSet):
     partial_update:
     局部修改菜单,修改任意指定的属性
 
-    get_menus_by_permission
+    get_menus_by_permission:
     当前登录用户,根据权限查询那些拥有get权限的功能菜单列表
 
+    返回树型菜单列表,return:200 是成功
     """
     queryset = MenuModel.objects.filter(delete_flag=0).all()
     serializer_class = MenuSerializer
@@ -162,7 +163,6 @@ class MenuView(viewsets.ModelViewSet):
         tree_data = []
         for item in serializer.data:
             tree_dict[item['id']] = item
-        print(tree_dict)
         for i in tree_dict:
             if tree_dict[i]['parent']:
                 pid = tree_dict[i]['parent']

@@ -39,6 +39,8 @@ class RolesView(viewsets.ModelViewSet, MultipleDestroyMixin):
     给单个角色,单一授权,一次只能授予该角色一个permission,也可以取消一个permission
 
     status:200(成功),return:修改后的角色信息
+    retrieve:
+    查询单个角色对象
     """
     queryset = RolesModel.objects.all()
 

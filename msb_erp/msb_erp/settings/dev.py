@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'corsheaders',  # 解决浏览器的跨域问题
     'erp_system',  # 系统管理模块: 包括 用户管理,角色管理,功能菜单管理,权限管理,机构管理,日志模块
     'basic_info',  # 基本信息管理的模块
+    'goods_info',   # 商品信息管理模块
+    'purchase_info',   # 采购信息管理模块
+    'warehouse_info',   # 仓储管理模块
 
 ]
 
@@ -270,3 +273,9 @@ CELERY_TASK_TIME_LIMIT = 30 * 60   # 任务结果过期时间配置
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/3'  # Broker配置,使用redis作为消息中间件
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/4'   # 任务结果存储配置,使用redis存储
 CELERY_RESULT_SERIALIZER = 'json'  # 配置结果为序列化方案
+
+# # 配置上传件存放的目录，获取media文件夹的完整路径信息
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# 设置媒体路由地址信息
+MEDIA_URL = '/media/'

@@ -36,23 +36,28 @@ class DeptView(viewsets.ModelViewSet, MultipleDestroyMixin):
    retrieve:
    查询单个部门
 
+   查询单个部门
    list:
    查询所有的部门
 
    如果参数中有Pid,则查询某一个父菜单列表,pid=0表示查询项目顶级菜单列表
 
    update:
-   修改部门
+    修改部门
 
+    修改部门信息
    destroy:
-   删除指定id的部门
+    删除指定id的部门
 
+    删除指定id的部门
    multiple_delete:
    批量删除部门
 
    参数: 传参要求是个id列表[id1,id2,id3,...]
 
    partial_update:
+   局部修改部门,修改任意部门的属性
+
    局部修改部门,修改任意部门的属性
     """
 

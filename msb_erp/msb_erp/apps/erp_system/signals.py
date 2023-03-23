@@ -1,12 +1,12 @@
-import logging
+# import logging
 #
 # from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
 #
 from erp_system.models import MenuModel, PermissionsModel
 #
-logger = logging.getLogger('erp')
-methods = {'POST': '新增', 'GET': '查询', 'PUT': '修改', 'DELETE': '删除', 'PATCH': '改局部'}
+# logger = logging.getLogger('erp')
+# methods = {'POST': '新增', 'GET': '查询', 'PUT': '修改', 'DELETE': '删除', 'PATCH': '改局部'}
 #
 #
 # @receiver(post_save, sender=MenuModel)
@@ -48,4 +48,3 @@ methods = {'POST': '新增', 'GET': '查询', 'PUT': '修改', 'DELETE': '删除
 #                                             is_menu=False, method=method, path=instance.url, menu=instance)
 #     else:
 #         PermissionsModel.objects.create(name=str(instance.name) + '的权限', is_menu=True ,menu=instance)
-

@@ -31,8 +31,7 @@ class SettlementAccountView(viewsets.ModelViewSet, MultipleDestroyMixin, Multipl
 
     结算账户信息批量删除, status: 204(成功), return: None
     multiple_open:
-    结算账户信息--批量启用或者禁用,必传(json)参数：ids=[1,2,3,4...](列表中可以只有一个)，is_open=1/0 { "ids":[1,2], "is_open":"0" }
-    is_open=1表示禁用，is_open=0表示启用，
+    结算账户信息--批量启用或者禁用,必传(json)参数:ids=[1,2,3,...](列表中可以只有一个)，is_open=1/0 1表示禁用，0表示启用，
 
     结算账户信息批量启用或者禁用, status: 204(成功), return: None
     update:
